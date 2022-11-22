@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DB_URL")
+}
+
+model User {
+  id    BigInt     @default(autoincrement()) @id
+  name  String?
+  email String  @unique
+  todos Todo[]
+  @@map("user")
+}
+
+
+model Todo {
+  id    BigInt     @default(autoincrement()) @id
+  name  String?
+  user_id BigInt
+  user User @relation(fields: [user_id], references: [id]) 
+  priority Float @db.Double @unique
+  @@map("todo")
+}
