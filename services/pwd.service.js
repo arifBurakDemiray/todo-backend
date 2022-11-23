@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt'
 export async function encryptPassword(password) {
 
     return bcrypt
-        .hash(password,10)
+        .hash(password, process.env.BCRYPT_ROUND)
         .then(hashedPassword => {
             return hashedPassword
         })

@@ -1,28 +1,22 @@
+import {generateAccessToken} from './jwt.service.js'
+import {comparePassword} from './pwd.service.js'
+import { orm } from '../db/db.js'
 
-import jwt from 'jsonwebtoken'
+export async function authenticate(username,password) {
 
-export function generateAccessToken(username) {
-    return jwt.sign({username: username}, process.env.JWT_SECRET, { expiresIn: '1h' });
-  }
+    const maybeUser = await orm.user.findUnique({
+        where: {
+            email: username,
+        },
+        select: {
+            password: true,
+            id: true,
+        },
+    })
 
+    if(maybeUser && await comparePassword(password,maybeUser.password)){
+        return {access_token: generateAccessToken(username),status: 200}
+    }
 
-export function getUserName(req){
-  return jwt.verify(req.headers['authorization'].split(' ')[1], process.env.JWT_SECRET).username
-}
-
-export function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization']
-  const token = authHeader && authHeader.split(' ')[1]
-
-  if (token == null || authHeader.split(' ')[0] !== 'Bearer') return res.sendStatus(401)
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    //console.log(err)
-
-    if (err) return res.sendStatus(403)
-
-    req.user = user
-
-    next()
-  })
+    return {message:'Username or password is wrong',status: 400}
 }
