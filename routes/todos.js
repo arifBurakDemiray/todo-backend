@@ -1,11 +1,7 @@
 import express from 'express';
-import {authenticateToken,getUserName} from '../services/auth.service.js'
-import { PrismaClient } from '@prisma/client'
-BigInt.prototype["toJSON"] = function () {
-    return this.toString();
-  };
-var router = express.Router();
-const prisma = new PrismaClient()
+import {authenticateToken,getUserName} from '../services/jwt.service.js'
+import { orm } from '../db/db.js'
+import {router} from './router.js'
 
 /* GET todo listing. */
 router.get('/todos',authenticateToken, async function(req, res, next) {
@@ -13,7 +9,7 @@ router.get('/todos',authenticateToken, async function(req, res, next) {
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
 
-    const todos = await prisma.todo.findMany({
+    const todos = await orm.todo.findMany({
         skip: page*size,
         take: size
     })
@@ -28,7 +24,7 @@ router.post('/todo',authenticateToken, async function(req, res, next) {
     const name = req.query.name
     const prio = parseFloat(req.query.priority)
 
-    const todo = await prisma.todo.create({
+    const todo = await orm.todo.create({
         data: {
             name:name,
             priority:prio,

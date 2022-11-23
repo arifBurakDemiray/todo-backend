@@ -1,5 +1,4 @@
-import express from 'express';
-var router = express.Router();
+import {router} from './router.js';
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
