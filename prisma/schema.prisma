@@ -7,20 +7,47 @@ datasource db {
   url      = env("DB_URL")
 }
 
+enum TodoType {
+  NOTE
+  TODO
+}
+
 model User {
-  id    BigInt     @default(autoincrement()) @id
-  name  String?
-  email String  @unique
-  todos Todo[]
+  id         String       @id @default(uuid())
+  name       String?
+  password   String
+  email      String       @unique
+  active     Boolean      @default(false)
+  Collection Collection[]
+
   @@map("user")
 }
 
-
 model Todo {
-  id    BigInt     @default(autoincrement()) @id
-  name  String?
-  user_id BigInt
-  user User @relation(fields: [user_id], references: [id]) 
-  priority Float @db.Double @unique
+  id            String     @id @default(uuid())
+  name          String?
+  collection_id String
+  collection    Collection @relation(fields: [collection_id], references: [id])
+  priority      Float      @unique @db.Double
+  userId        String?
+  created_at    DateTime   @default(now())
+  updated_at    DateTime   @updatedAt
+  active        Boolean    @default(true)
+  blocked       Boolean    @default(false)
+
   @@map("todo")
+}
+
+model Collection {
+  id         String   @id @default(uuid())
+  name       String?
+  user_id    String
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  type       TodoType @default(TODO)
+  user       User     @relation(fields: [user_id], references: [id])
+  Todo       Todo[]
+  active     Boolean  @default(true)
+
+  @@map("collection")
 }
