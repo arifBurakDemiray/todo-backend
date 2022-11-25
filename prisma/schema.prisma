@@ -13,14 +13,14 @@ enum TodoType {
 }
 
 model User {
-  id         String       @id @default(uuid())
-  name       String?
-  password   String
-  email      String       @unique
-  active     Boolean      @default(false)
-  created_at DateTime     @default(now())
-  updated_at DateTime     @updatedAt
-  Collection Collection[]
+  id          String       @id @default(uuid())
+  name        String?
+  password    String
+  email       String       @unique
+  active      Boolean      @default(false)
+  created_at  DateTime     @default(now())
+  updated_at  DateTime     @updatedAt
+  collections Collection[]
 
   @@map("user")
 }
@@ -31,11 +31,12 @@ model Todo {
   collection_id String
   collection    Collection @relation(fields: [collection_id], references: [id])
   priority      Float      @unique @db.Double
-  userId        String?
   created_at    DateTime   @default(now())
+  deadline      DateTime?
   updated_at    DateTime   @updatedAt
   active        Boolean    @default(true)
-  blocked       Boolean    @default(false)
+  notify_me     Boolean    @default(true)
+  done          Boolean    @default(true)
 
   @@map("todo")
 }
@@ -48,9 +49,11 @@ model Collection {
   updated_at DateTime @updatedAt
   type       TodoType @default(TODO)
   user       User     @relation(fields: [user_id], references: [id])
-  Todo       Todo[]
+  todos      Todo[]
   active     Boolean  @default(true)
   priority   Float    @unique @db.Double
+  blocked    Boolean  @default(false)
+  deletable  Boolean  @default(false)
 
   @@map("collection")
 }
