@@ -50,6 +50,7 @@ model Collection {
   user       User     @relation(fields: [user_id], references: [id])
   Todo       Todo[]
   active     Boolean  @default(true)
+  priority   Float    @unique @db.Double
 
   @@map("collection")
 }
