@@ -4,10 +4,11 @@ import bcrypt from 'bcrypt'
 export async function encryptPassword(password) {
 
     return bcrypt
-        .hash(password, process.env.BCRYPT_ROUND)
+        .hash(password, parseInt(process.env.BCRYPT_ROUND))
         .then(hashedPassword => {
             return hashedPassword
         })
+        .catch((e) => {console.log(e)})
  };
  
 
