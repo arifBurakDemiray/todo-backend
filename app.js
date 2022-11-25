@@ -1,13 +1,11 @@
 import createError from 'http-errors';
 import express from 'express';
 import path from 'path';
-import cookieParser from 'cookie-parser';
 import logger from 'morgan'
-import indexRouter from './routes/index.js'
-import usersRouter from './routes/todos.js'
-import authRouter from './routes/auth.js'
+import {subscribeEnpoints,configRequestTypes} from './routes/endpoint.conf.js'
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv'
+import i18n from 'i18n'
 var app = express();
 
 
@@ -19,14 +17,21 @@ app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
 app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+
+configRequestTypes(app)
+
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/', usersRouter);
-app.use('/',authRouter);
+
+i18n.configure({
+  locales: ['en', 'tr'],
+  directory: path.join(__dirname, '/public/locales'),
+  defaultLocale: 'en',
+})
+//default locale bozuk
+app.use(i18n.init)
+
+subscribeEnpoints(app)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -35,13 +40,10 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
+
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  res.status(err.status || 500).json({message:err.message});
 });
 
 export default app;
