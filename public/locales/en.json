@@ -2,5 +2,13 @@
     "login_failed": "Username or password is wrong",
     "login_recently": "You logged in recently",
     "register_new": "Please confirm your account",
-    "user_email_key": "Please provide different credentials"
+    "user_email_key": "Please provide different credentials",
+    "email.confirmation.title": "Welcome SimpleTodo User!",
+    "email.confirmation.subject": "SimpleTodo Account Confirmation Email",
+    "email.confirmation.body": "Please confirm your account to use SimpleTodo",
+    "email.confirmation.button_name": "confirm",
+    "email_sent_resp_confirmation": "If your email matches confirmation email will be sent",
+    "success": "Operation successful",
+    "fail": "Operation failed",
+    "email.confirmation.warning": "You have 1 hour to confirm your account"
 }

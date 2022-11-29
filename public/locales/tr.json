@@ -2,5 +2,13 @@
     "login_failed": "Kullanici adi veya sifre yanlis",
     "login_recently": "Yakin zamanda giris yaptiniz lutfen bekleyiniz",
     "register_new": "Lutfen hesabinizi aktive ediniz",
-    "user_email_key": "Lutfen yeni bir hesap deneyiniz"
+    "user_email_key": "Lutfen yeni bir hesap deneyiniz",
+    "email.confirmation.title": "Hosgeldin SimpleTodo Kullanicisi!",
+    "email.confirmation.subject": "SimpleTodo Hesabi Dogrulama Emaili",
+    "email.confirmation.body": "SimpleTodo kullanabilmek icin lutfen hesabinizi onaylayiniz",
+    "email.confirmation.button_name" : "onayla",
+    "email_sent_resp_confirmation": "Eger emailiniz var ise dogrulama maili gonderilecek",
+    "success": "Islem basarili",
+    "fail": "Islem basarisiz",
+    "email.confirmation.warning": "You have 1 hour to confirm your account"
 }
