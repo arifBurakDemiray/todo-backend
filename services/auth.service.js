@@ -2,6 +2,29 @@ import {generateAccessToken} from './jwt.service.js'
 import {comparePassword,encryptPassword} from './pwd.service.js'
 import { orm } from '../db/db.js'
 import {minuteBetween} from '../util/date.util.js'
+import {sendMail} from '../services/email.service.js'
+import { v4 as uuidv4 } from 'uuid';
+
+
+async function createUserCode(user){
+
+    await orm.userCode.deleteMany({
+        where: {
+            user_id: user.id
+        }
+    })
+
+    try {
+        return await orm.userCode.create({
+            data: {
+                code: uuidv4(),
+                user_id: user.id
+            }
+        })}
+        catch(e) {
+            return {message: req.__(e.meta.target), status: 400}
+        }
+}
 
 export const authService = {
     async authenticate(req) {
@@ -45,21 +68,107 @@ export const authService = {
         return failResponse
     },
 
-    async register(req){
+    async sendAgain(req){
+        const username = req.body.email
+        const response = {message:req.__('email_sent_resp_confirmation'),status: 200}
 
+        const maybeUser = await orm.user.findFirst({
+            where: {
+                email: username,
+                active: false
+            }
+        })
+    
+        if(!maybeUser){ return response}
+
+        const code = await createUserCode(maybeUser)
+
+        const subject = req.__('email.confirmation.subject')
+
+        sendMail({
+            template: './views/confirm.pug',
+            subject: subject,
+            username: username,
+            objects : {
+                title: req.__('email.confirmation.title'),
+                subject: subject,
+                body: req.__('email.confirmation.body'),
+                link: ''.concat(process.env.BASE_URL,'confirm?code=',code.code),
+                button_name : req.__('email.confirmation.button_name'),
+                warning: req.__('email.confirmation.warning')
+            }
+        })
+        return response
+    },
+
+    async register(req){
+        const response = {message:req.__('email_sent_resp_confirmation'),status: 200}
         const username = req.body.email
         const password = await encryptPassword(req.body.password)
+        let user;
         try {
-        await orm.user.create({
+        user = await orm.user.create({
             data: {
                 email: username,
                 password: password
             }
         })}
         catch(e) {
-            return {message: req.__(e.meta.target), status: 400}
+            return response
         }
+        
+        const code = await createUserCode(user)
 
-        return {message: req.__('register_new'),status: 201}
+        const subject = req.__('email.confirmation.subject')
+
+        sendMail({
+            template: './views/confirm.pug',
+            subject: subject,
+            username: username,
+            objects : {
+                title: req.__('email.confirmation.title'),
+                subject: subject,
+                body: req.__('email.confirmation.body'),
+                link: ''.concat(process.env.BASE_URL,'confirm?code=',code.code),
+                button_name : req.__('email.confirmation.button_name'),
+                warning: req.__('email.confirmation.warning')
+            }
+        })
+        return response
+    },
+
+    async confirm(req){
+        const code = req.query.code
+
+        const maybeCode = await orm.userCode.findFirst({
+            where: {
+                code: code
+            },
+            select: {
+                user_id: true,
+                created_at: true
+            }
+        })
+    
+        if(!maybeCode){ return {message:req.__('fail'),status: 400}}
+        if(minuteBetween(Date.now(),maybeCode.created_at)>=60){ return {message:req.__('fail'),status: 400}}
+
+        await orm.userCode.deleteMany({
+            where: {
+                user_id: maybeCode.user_id
+            }
+        })
+    
+
+        await orm.user.update({
+            where: {
+                id: maybeCode.user_id
+            },
+            data: {
+                active: true
+            }
+        })
+
+        return {message: req.__('success'),status: 200}
     }
 }
