@@ -10,8 +10,17 @@ router.get('/todos',authenticateToken, async function(req, res, next) {
     const size = parseInt(req.query.size)
 
     const todos = await orm.todo.findMany({
+        orderBy: [
+            {
+                done: 'asc',
+                priority: 'desc'
+            }
+        ],
         skip: page*size,
-        take: size
+        take: size,
+        where : {
+            active: true
+        },
     })
     res.json(todos);
 });
