@@ -4,6 +4,7 @@ import { orm } from '../db/db.js'
 import {minuteBetween} from '../util/date.util.js'
 import {sendMail} from '../services/email.service.js'
 import { v4 as uuidv4 } from 'uuid';
+import {Response} from '../util/response.js'
 
 
 async function createUserCode(user){
@@ -32,7 +33,7 @@ export const authService = {
         const username = req.body.username
         const password = req.body.password
         const granty_type = req.body.grant_type
-        const failResponse = {message:req.t('login_failed'),status: 400}
+        const failResponse = Response().message(req.t('login_failed')).status(400).build()
         if(!granty_type || granty_type !== 'password' ){
             return failResponse
         }
@@ -70,7 +71,7 @@ export const authService = {
 
     async sendAgain(req){
         const username = req.body.email
-        const response = {message:req.t('email_sent_resp'),status: 200}
+        const response = Response().message(req.t('email_sent_resp')).build()
 
         const maybeUser = await orm.user.findFirst({
             where: {
@@ -102,7 +103,7 @@ export const authService = {
     },
 
     async register(req){
-        const response = {message:req.t('email_sent_resp'),status: 200}
+        const response = Response().message(req.t('email_sent_resp')).build()
         const username = req.body.email
         const password = await encryptPassword(req.body.password)
         let user;
@@ -138,7 +139,7 @@ export const authService = {
     },
 
     async resetPassword(req){
-        const response = {message:req.t('email_sent_resp'),status: 200}
+        const response = Response().message(req.t('email_sent_resp')).build()
         const username = req.query.email
         let user;
         try {
