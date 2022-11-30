@@ -5,7 +5,7 @@
             "subject":"SimpleTodo Sifre Sifirlama Emaili",
             "body":"Lutfen SimpleTodo hesabinizin sifresini sifirlamak icin linki takip ediniz",
             "button_name":"sifirla",
-            "warning": "Sifrenizi sifirlamak icin 1 saatiniz var. \nEger siz bir istekte bulunmadiysaniz bu maile aldiris etmeyiniz"
+            "warning": "Sifrenizi sifirlamak icin 1 saatiniz var. Eger siz bir istekte bulunmadiysaniz bu maile aldiris etmeyiniz"
         },
         "confirmation":{
             "title": "Hosgeldin SimpleTodo Kullanicisi!",
