@@ -5,6 +5,7 @@ import {minuteBetween} from '../util/date.util.js'
 import {sendMail} from '../services/email.service.js'
 import { v4 as uuidv4 } from 'uuid';
 import {Response} from '../util/response.js'
+import {HttpStatus} from '../enums/status.enum.js'
 
 
 async function createUserCode(user){
@@ -33,7 +34,7 @@ export const authService = {
         const username = req.body.username
         const password = req.body.password
         const granty_type = req.body.grant_type
-        const failResponse = Response().message(req.t('login_failed')).status(400).build()
+        const failResponse = Response().message(req.t('login_failed')).status(HttpStatus.BAD_REQUEST).build()
         if(!granty_type || granty_type !== 'password' ){
             return failResponse
         }
@@ -51,7 +52,7 @@ export const authService = {
         })
     
         if(!maybeUser){ return failResponse}
-        if(minuteBetween(Date.now(),maybeUser.last_logged_in)<=5)  {return {message:req.t('login_recently'),status: 429}}
+        if(minuteBetween(Date.now(),maybeUser.last_logged_in)<=5)  {return {message:req.t('login_recently'),status: HttpStatus.TOO_MANY_REQUEST}}
     
         if(await comparePassword(password,maybeUser.password)){
             await orm.user.update({
@@ -63,7 +64,7 @@ export const authService = {
                 }
             })
     
-            return {access_token: generateAccessToken(username),status: 200}
+            return {access_token: generateAccessToken(username),status: HttpStatus.OK}
         }
     
         return failResponse

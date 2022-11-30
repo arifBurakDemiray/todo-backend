@@ -1,9 +1,9 @@
-import { NIL } from "uuid"
+import {HttpStatus} from '../enums/status.enum.js'
 
 export function Response() {
 
     let response = {
-        status: 200,
+        status: HttpStatus.OK,
         message: undefined,
         data: undefined
     }
