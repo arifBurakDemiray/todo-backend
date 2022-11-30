@@ -5,7 +5,9 @@ import logger from 'morgan'
 import {subscribeEnpoints,configRequestTypes} from './routes/endpoint.conf.js'
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv'
-import i18n from 'i18n'
+import i18next from 'i18next'
+import i18nextMiddleware from 'i18next-http-middleware'
+import Backend from 'i18next-fs-backend'
 var app = express();
 
 
@@ -23,13 +25,18 @@ configRequestTypes(app)
 app.use(express.static(path.join(__dirname, 'public')));
 
 
-i18n.configure({
-  locales: ['en', 'tr'],
-  directory: path.join(__dirname, '/public/locales'),
-  defaultLocale: 'en',
+i18next
+.use(Backend)
+.use(i18nextMiddleware.LanguageDetector)
+.init({
+  backend: {
+    loadPath: __dirname + '/public/locales/{{lng}}.json'
+  },
+  fallbackLng: 'en',
+  preload: ['en','tr']
 })
-//default locale bozuk
-app.use(i18n.init)
+
+app.use(i18nextMiddleware.handle(i18next))
 
 subscribeEnpoints(app)
 
