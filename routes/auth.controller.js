@@ -29,5 +29,12 @@ router.post('/confirm-again', async function(req, res, next) {
 
 });
 
+router.post('/reset-password', async function(req, res, next) {
+
+  const result = await authService.resetPassword(req)
+  res.status(result.status).json(result)
+
+});
+
 export default router;
 

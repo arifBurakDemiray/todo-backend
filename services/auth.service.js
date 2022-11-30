@@ -22,7 +22,7 @@ async function createUserCode(user){
             }
         })}
         catch(e) {
-            return {message: req.__(e.meta.target), status: 400}
+            return {message: req.t(e.meta.target), status: 400}
         }
 }
 
@@ -32,7 +32,7 @@ export const authService = {
         const username = req.body.username
         const password = req.body.password
         const granty_type = req.body.grant_type
-        const failResponse = {message:req.__('login_failed'),status: 400}
+        const failResponse = {message:req.t('login_failed'),status: 400}
         if(!granty_type || granty_type !== 'password' ){
             return failResponse
         }
@@ -50,7 +50,7 @@ export const authService = {
         })
     
         if(!maybeUser){ return failResponse}
-        if(minuteBetween(Date.now(),maybeUser.last_logged_in)<=5)  {return {message:req.__('login_recently'),status: 429}}
+        if(minuteBetween(Date.now(),maybeUser.last_logged_in)<=5)  {return {message:req.t('login_recently'),status: 429}}
     
         if(await comparePassword(password,maybeUser.password)){
             await orm.user.update({
@@ -70,7 +70,7 @@ export const authService = {
 
     async sendAgain(req){
         const username = req.body.email
-        const response = {message:req.__('email_sent_resp_confirmation'),status: 200}
+        const response = {message:req.t('email_sent_resp'),status: 200}
 
         const maybeUser = await orm.user.findFirst({
             where: {
@@ -83,26 +83,26 @@ export const authService = {
 
         const code = await createUserCode(maybeUser)
 
-        const subject = req.__('email.confirmation.subject')
+        const subject = req.t('email.confirmation.subject')
 
         sendMail({
             template: './views/confirm.pug',
             subject: subject,
             username: username,
             objects : {
-                title: req.__('email.confirmation.title'),
+                title: req.t('email.confirmation.title'),
                 subject: subject,
-                body: req.__('email.confirmation.body'),
+                body: req.t('email.confirmation.body'),
                 link: ''.concat(process.env.BASE_URL,'confirm?code=',code.code),
-                button_name : req.__('email.confirmation.button_name'),
-                warning: req.__('email.confirmation.warning')
+                button_name : req.t('email.confirmation.button_name'),
+                warning: req.t('email.confirmation.warning')
             }
         })
         return response
     },
 
     async register(req){
-        const response = {message:req.__('email_sent_resp_confirmation'),status: 200}
+        const response = {message:req.t('email_sent_resp'),status: 200}
         const username = req.body.email
         const password = await encryptPassword(req.body.password)
         let user;
@@ -119,19 +119,55 @@ export const authService = {
         
         const code = await createUserCode(user)
 
-        const subject = req.__('email.confirmation.subject')
+        const subject = req.t('email.confirmation.subject')
 
         sendMail({
-            template: './views/confirm.pug',
+            template: './views/template.pug',
             subject: subject,
             username: username,
             objects : {
-                title: req.__('email.confirmation.title'),
+                title: req.t('email.confirmation.title'),
                 subject: subject,
-                body: req.__('email.confirmation.body'),
+                body: req.t('email.confirmation.body'),
                 link: ''.concat(process.env.BASE_URL,'confirm?code=',code.code),
-                button_name : req.__('email.confirmation.button_name'),
-                warning: req.__('email.confirmation.warning')
+                button_name : req.t('email.confirmation.button_name'),
+                warning: req.t('email.confirmation.warning')
+            }
+        })
+        return response
+    },
+
+    async resetPassword(req){
+        const response = {message:req.t('email_sent_resp'),status: 200}
+        const username = req.query.email
+        let user;
+        try {
+            user = await orm.user.findFirst({
+                where: {
+                    email: username,
+                    active: true
+                },
+            })
+        }
+        catch(e) {
+            return response
+        }
+        
+        const code = await createUserCode(user)
+
+        const subject = req.t("email.reset_pwd.subject")
+
+        sendMail({
+            template: './views/template.pug',
+            subject: subject,
+            username: username,
+            objects : {
+                title: req.t('email.reset_pwd.title'),
+                subject: subject,
+                body: req.t('email.reset_pwd.body'),
+                link: ''.concat(process.env.BASE_URL,'reset?code=',code.code),
+                button_name : req.t('email.reset_pwd.button_name'),
+                warning: req.t('email.reset_pwd.warning')
             }
         })
         return response
@@ -150,8 +186,8 @@ export const authService = {
             }
         })
     
-        if(!maybeCode){ return {message:req.__('fail'),status: 400}}
-        if(minuteBetween(Date.now(),maybeCode.created_at)>=60){ return {message:req.__('fail'),status: 400}}
+        if(!maybeCode){ return {message:req.t('fail'),status: 400}}
+        if(minuteBetween(Date.now(),maybeCode.created_at)>=60){ return {message:req.t('fail'),status: 400}}
 
         await orm.userCode.deleteMany({
             where: {
@@ -169,6 +205,6 @@ export const authService = {
             }
         })
 
-        return {message: req.__('success'),status: 200}
+        return {message: req.t('success'),status: 200}
     }
 }
