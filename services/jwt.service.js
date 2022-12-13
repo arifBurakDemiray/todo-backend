@@ -1,13 +1,17 @@
 
 import jwt from 'jsonwebtoken'
 
-export function generateAccessToken(username) {
-    return jwt.sign({username: username}, process.env.JWT_SECRET, { expiresIn:  process.env.JWT_DURATION });
+export function generateAccessToken(username,userId) {
+    return jwt.sign({username: username,userId: userId}, process.env.JWT_SECRET, { expiresIn:  process.env.JWT_DURATION });
   }
 
 
 export function getUserName(req){
   return jwt.verify(req.headers['authorization'].split(' ')[1], process.env.JWT_SECRET).username
+}
+
+export function getUserId(req){
+  return jwt.verify(req.headers['authorization'].split(' ')[1], process.env.JWT_SECRET).userId
 }
 
 export function authenticateToken(req, res, next) {
