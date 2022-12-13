@@ -15,6 +15,9 @@
 			"warning": "You have 1 hour to confirm your account"
 		}
 	},
+	"todo": {
+		"not_permissible":"You lack permissions to see this collection"
+	},
 	"login_failed": "Username or password is wrong",
 	"login_recently": "You logged in recently",
 	"register_new": "Please confirm your account",
