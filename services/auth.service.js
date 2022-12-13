@@ -64,7 +64,7 @@ export const authService = {
                 }
             })
     
-            return {access_token: generateAccessToken(username),status: HttpStatus.OK}
+            return {access_token: generateAccessToken(username,maybeUser.id),status: HttpStatus.OK}
         }
     
         return failResponse
